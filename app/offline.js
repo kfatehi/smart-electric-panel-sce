@@ -5,19 +5,31 @@ const fs = require('fs');
 
 let data = [];
 
-// Accepts
-//  - a proc to check for exit status
-//  - dataline influxdb format with timestamp
-//  - a function that accepts array of datalines on reconnect
-module.exports.wrap = (proc, dataline, onReconnect)=>{
-  proc.on('exit', (code) => {
+module.exports.wrap = proc => dataline => {
+  proc(dataline).on('exit', (code) => {
     if (code == 0) {
       if (data.length > 0) {
         onReconnect(data)
         data = [];
+        console.log("reconnected. "+data.length+" datalines deferred");
       }
     } else {
       data.push(dataline);
     };
   });
 };
+
+
+module.exports.startServer = ()=>{
+  const app = require('express')();
+
+  app.get('/', (req, res)=>{
+    res.json({
+      datalines: data.length
+    });
+  });
+  
+  app.listen(3000, ()=>{
+    console.log("listening");
+  });
+}
