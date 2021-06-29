@@ -4,7 +4,7 @@ const fs = require('fs');
 const spawn = require('child_process').spawn;
 const offline = require('./offline'); // offline situation helper
 
-let hostport = '10.14.52.7:8086';
+let hostport = '192.168.70.6:8086';
 // let hostport = 'localhost:8086';
 
 spawn("curl", ["-s", "-XPOST", "http://"+hostport+"/query", "--data-urlencode", "q=CREATE DATABASE studio"]).on('exit', ()=>{
