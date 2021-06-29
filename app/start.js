@@ -2,10 +2,8 @@
 const getRate = require('./get_rate');
 const fs = require('fs');
 const spawn = require('child_process').spawn;
-const offline = require('./offline'); // offline situation helper
 
 let hostport = '192.168.70.6:8086';
-// let hostport = 'localhost:8086';
 
 spawn("curl", ["-s", "-XPOST", "http://"+hostport+"/query", "--data-urlencode", "q=CREATE DATABASE studio"]).on('exit', ()=>{
   let lastTickTimestamp = Date.now();
@@ -40,9 +38,6 @@ spawn("curl", ["-s", "-XPOST", "http://"+hostport+"/query", "--data-urlencode", 
     dataline+=`total_cost_accrual_dollars=${total_cost_accrued_this_tick}`
     let tss = (ts*1000000).toString()
     dataline+=` ${tss}`;
-    let fn = offline.wrap((d)=>spawn("curl", ["-s", "-XPOST", '--connect-timeout', '1', "http://"+hostport+"/write?db=studio", "--data-binary", d]));
-    fn(dataline);
+    spawn("curl", ["-s", "-XPOST", '--connect-timeout', '1', "http://"+hostport+"/write?db=studio", "--data-binary", dataline]);
   });
 });
-
-offline.startServer();
